@@ -12,7 +12,7 @@ app.post('/login', (req, res) => {
         username: "abc",
         email: "abc@gmail.com"
     };
-
+   // Sign the token with user information
     jwt.sign({ user }, secretKey, { expiresIn: '300s' }, (err, token) => {
         if (err) {
             return res.sendStatus(500);
@@ -20,8 +20,9 @@ app.post('/login', (req, res) => {
         res.json({ token });
     });
 });
-
-app.post("/profile", verifyToken, (req, res) => {
+// Profile route that requires token verification
+app.get("/profile", verifyToken, (req, res) => {
+        // Verify the token
     jwt.verify(req.token, secretKey, (err, authData) => {
         if (err) {
             console.error('Token verification failed:', err);
@@ -30,7 +31,7 @@ app.post("/profile", verifyToken, (req, res) => {
         res.json({ message: "Profile accessed", authData });
     });
 });
-
+// Middleware to verify the token
 function verifyToken(req, res, next) {
     
     const bearerHeader = req.headers['authorization'];

@@ -165,7 +165,69 @@ This command will create a new file `multer-file-upload.js` in the current worki
     export const upload = multer({ storage });
 
    ```
-5. **`mongoose-con`**:
+
+5.  **`jwt-based-authentication`**:
+Authenticating user by using jsonwebtoken
+ **Code Snippet**:
+   ```js
+   const express = require('express');
+const app = express();
+const secretKey = "secretK/key";
+const jwt = require('jsonwebtoken');
+
+app.use(express.json());
+
+// Authenticate user
+app.post('/login', (req, res) => {
+    const user = {
+        id: 1,
+        username: "abc",
+        email: "abc@gmail.com"
+    };
+
+    jwt.sign({ user }, secretKey, { expiresIn: '300s' }, (err, token) => {
+        if (err) {
+            return res.sendStatus(500);
+        }
+        res.json({ token });
+    });
+});
+
+app.get("/profile", verifyToken, (req, res) => {
+    jwt.verify(req.token, secretKey, (err, authData) => {
+        if (err) {
+            console.error('Token verification failed:', err);
+            return res.status(401).json({ result: "Invalid token" });
+        }
+        res.json({ message: "Profile accessed", authData });
+    });
+});
+
+function verifyToken(req, res, next) {
+    
+    const bearerHeader = req.headers['authorization'];
+    console.log("Bearer Header:", bearerHeader);
+
+    if (bearerHeader) {
+        const bearer = bearerHeader.split(' ');
+        const token = bearer[1];
+        console.log("Token:", token);
+        req.token = token;
+        next();
+    } else {
+        res.sendStatus(403);
+    }
+}
+
+app.listen(3000, () => {
+    console.log('Server started on port 3000');
+});
+
+// No need to export in this context as it's not a module, but if you do:
+module.exports = verifyToken;
+
+    ```
+6. **`mongoose-con`**:
    Sets up a connection to your mongodb using `mongoose`.
 
    **Code Snippet**:
@@ -183,7 +245,7 @@ This command will create a new file `multer-file-upload.js` in the current worki
 
 
    ```
-6. **`mongoose-schema`**:
+7. **`mongoose-schema`**:
    Sets up a basic schema for your db using `mongoose`.
 
    **Code Snippet**:
